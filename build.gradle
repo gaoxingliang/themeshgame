@@ -63,6 +63,12 @@ sourceSets {
         resources {
         }
     }
+
+    test {
+        java {
+            srcDir 'test'
+        }
+    }
 }
 
 
@@ -72,6 +78,9 @@ dependencies {
 
     compile(
             "com.google.guava:guava:18.0"
+    )
+    testCompile(
+            "junit:junit:4.10"
     )
 
 

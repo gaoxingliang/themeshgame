@@ -8,7 +8,7 @@ import java.util.Arrays;
  * Created by edward.gao on 16/11/2017.
  */
 public class Main {
-
+    private static final ThreadLocal<Result> result = new ThreadLocal<>();
 
     /**
      * a test
@@ -36,7 +36,7 @@ public class Main {
                 break;
             }
             int [] nums = Splitter.on(",").trimResults().omitEmptyStrings().splitToList(numbers).stream().mapToInt(k -> Integer.valueOf(k)).sorted().toArray();
-            System.out.println("Number are - " + Arrays.asList(nums));
+            System.out.println("Number are - " + Arrays.toString(nums));
             c.printf("which numbers has multiple 2? \n");
             String muls = c.readLine();
             KIND [] kinds = new KIND[nums.length];
@@ -88,7 +88,6 @@ public class Main {
 
                     numbers[i] = a + b;
                     kinds[i] = kinds[j] = KIND.DEFAULT;
-
                     if (isTarget(target, exps, numbers, kinds, n - 1)) {
                         return true;
                     }
@@ -113,6 +112,7 @@ public class Main {
 
                     numbers[i] = a * b;
                     kinds[i] = kinds[j] = KIND.DEFAULT;
+
                     if (isTarget(target, exps, numbers, kinds, n - 1)) {
                         return true;
                     }
@@ -133,6 +133,7 @@ public class Main {
 
                     numbers[i] = a * b;
                     kinds[i] = kinds[j] = KIND.DEFAULT;
+
                     if (isTarget(target, exps, numbers, kinds, n - 1)) {
                         return true;
                     }
@@ -155,24 +156,49 @@ public class Main {
                 exps[j] = expb;
                 kinds[i] = kinda;
                 kinds[j] = kindb;
+
+                if (isAllEqualTarget(target, n, numbers)) {
+                    StringBuilder expsBuilder = new StringBuilder();
+                    for (int k = 0; k <= n -1; k++) {
+                        expsBuilder.append(exps[k]);
+                        if (k != n -1) {
+                            expsBuilder.append("=");
+                        }
+                    }
+                    System.out.println(String.format("special case, target=%d,expression=%s", target, expsBuilder.toString()));
+                    result.get().expression = expsBuilder.toString();
+                    result.get().matched = true;
+                    return true;
+                }
+
             }
         }
         return false;
     }
 
 
+    private static boolean isAllEqualTarget(int target, int n, int [] nums) {
+        for (int i = 0; i < n; i++) {
+            if (nums[i] != target) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     public static Result solve(int target, int[] numbers, KIND[] kinds) {
         Result r = new Result();
-
-
+        result.set(r);
         String[] exps = new String[numbers.length];
         for (int i = 0; i < numbers.length; i++) {
             exps[i] = String.valueOf(numbers[i]);
         }
+
         boolean isTrue = isTarget(target, exps, numbers, kinds, numbers.length);
         if (isTrue) {
             r.matched = true;
-            r.expression = exps[0];
+            r.expression = r.expression.equals("unknown") ? exps[0] : r.expression;
         }
         return r;
     }
