@@ -70,7 +70,8 @@ sourceSets {
 
 dependencies {
 
-    runtime(
+    compile(
+            "com.google.guava:guava:18.0"
     )
 
 
@@ -111,6 +112,22 @@ task devbuild {
     dependsOn = ['clean','jar']
 
     jar.mustRunAfter clean
+}
+
+// build jar
+task fatjar(type: Jar) {
+    baseName = MAVEN_ARTIFACT_ID + '-all-' + MAVEN_VERSION
+
+    manifest {
+        attributes 'Implementation-Title': 'themeshgame',
+                'Main-Class': 'Main'
+        //
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+    // add this to avoid the error -java.lang.SecurityException: Invalid signature file digest for Manifest main attributes
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF','META-INF/*.DSA'
 }
 
 //Define the test task
